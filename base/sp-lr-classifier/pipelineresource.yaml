@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-lr-classifier-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-lr-classifier-image:latest'
+  type: image

@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: sp-lr-pipeline-run-
+  name: sp-lr-pipeline-run-1
+spec:
+  pipelineRef:
+    name: sp-lr-pipeline
+  resources:
+    - name: app-git
+      resourceRef:
+        name: sp-lr-classifier-git
+    - name: app-image
+      resourceRef:
+        name: sp-lr-classifier-image
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: lr-source

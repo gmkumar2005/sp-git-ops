@@ -1,0 +1,77 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: bud-push
+spec:
+  params:
+    - default: .
+      description: The location of the path to run buildah from
+      name: PATH_CONTEXT
+      type: string
+    - default: 'true'
+      description: >-
+        Verify the TLS on the registry endpoint (for push/pull to a non-TLS
+        registry)
+      name: TLSVERIFY
+      type: string
+    - default: 'false'
+      description: Additional Maven arguments
+      name: MAVEN_ARGS_APPEND
+      type: string
+    - default: 'false'
+      description: Remove the Maven repository after the artifact is built
+      name: MAVEN_CLEAR_REPO
+      type: string
+    - default: ''
+      description: The base URL of a mirror used for retrieving artifacts
+      name: MAVEN_MIRROR_URL
+      type: string
+  resources:
+    outputs:
+      - name: image
+        type: image
+  steps:
+    - command:
+        - buildah
+        - bud
+        - '--tls-verify=false'
+        - '--layers'
+        - '-f'
+        - Dockerfile
+        - '-t'
+        - $(resources.outputs.image.url)
+        - .
+      image: registry.redhat.io/rhel8/buildah
+      name: build
+      resources: {}
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+        - mountPath: /gen-source
+          name: gen-source
+      workingDir: $(workspaces.source.path)/$(params.PATH_CONTEXT)
+    - command:
+        - buildah
+        - push
+        - '--tls-verify=false'
+        - $(resources.outputs.image.url)
+        - 'docker://$(resources.outputs.image.url)'
+      image: registry.redhat.io/rhel8/buildah
+      name: push
+      resources: {}
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+  volumes:
+    - emptyDir: {}
+      name: varlibcontainers
+    - emptyDir: {}
+      name: gen-source
+    - emptyDir: {}
+      name: envparams
+  workspaces:
+    - name: source

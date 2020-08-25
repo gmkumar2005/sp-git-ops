@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: sp-lr-pipeline
+spec:
+  workspaces:
+      - name: shared-ws
+  params:
+  - name: sp-lr-repo-url
+    type: string
+    description: The git repository URL to clone from.  
+  - name: sp-path-context
+    type: string
+    description: The location of the path to run build from.   
+    default: classifier    
+  resources:
+  - name: app-image
+    type: image
+  tasks:
+  - name: fetch-repo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-ws
+    params:
+    - name: url
+      value: $(params.sp-lr-repo-url)
+    - name: deleteExisting
+      value: "true"
+  - name: generate-image-push
+    resources:
+      outputs:
+      - name: image
+        resource:  app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.sp-path-context) 
+    runAfter:
+      - package
+    workspaces:
+      - name: source
+        workspace: shared-ws      
+
