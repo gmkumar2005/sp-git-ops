@@ -1,0 +1,13 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: seldon-core-s2i-python37-ubi8
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: 1.2.2
+      from:
+        kind: DockerImage
+        name: 'docker.io/seldonio/seldon-core-s2i-python37-ubi8:1.2.2'
+        

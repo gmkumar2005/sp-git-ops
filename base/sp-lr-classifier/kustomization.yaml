@@ -1,4 +1,5 @@
 resources:
+- imagestream.yaml
 - pipeline.yaml
 - persistentvolumeclaim.yaml
 - pipelineresource.yaml

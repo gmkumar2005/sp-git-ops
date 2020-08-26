@@ -4,16 +4,18 @@ metadata:
   generateName: sp-lr-pipeline-run-
   name: sp-lr-pipeline-run-1
 spec:
+  params:
+    - name: sp-lr-repo-url
+      value: 'https://github.com/parkarteam/sp-lr-classifier.git'
+    - name: PROJECT
+      value: odh-dev   
   pipelineRef:
     name: sp-lr-pipeline
   resources:
-    - name: app-git
-      resourceRef:
-        name: sp-lr-classifier-git
     - name: app-image
       resourceRef:
         name: sp-lr-classifier-image
   workspaces:
-    - name: shared-workspace
+    - name: shared-ws
       persistentVolumeClaim:
         claimName: lr-source

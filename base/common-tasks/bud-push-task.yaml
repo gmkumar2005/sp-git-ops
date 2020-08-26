@@ -26,24 +26,35 @@ spec:
       description: The base URL of a mirror used for retrieving artifacts
       name: MAVEN_MIRROR_URL
       type: string
+    - name: PROJECT
+      description: Openshift project name
+      default: "odh-dev"
+      type: string      
   resources:
     outputs:
       - name: image
         type: image
+    
   steps:
-    - command:
-        - buildah
-        - bud
-        - '--tls-verify=false'
-        - '--layers'
-        - '-f'
-        - Dockerfile
-        - '-t'
-        - $(resources.outputs.image.url)
-        - .
+    - name: echo
       image: registry.redhat.io/rhel8/buildah
-      name: build
-      resources: {}
+      env:
+        - name: PROJECT
+          value: $(params.PROJECT)            
+      script: |
+        #!/bin/sh
+        set -xe
+        echo "Project : $PROJECT"   
+       
+    - name: build
+      image: registry.redhat.io/rhel8/buildah      
+      resources: 
+        requests:
+          memory: "1024Mi"
+          cpu: "300m"
+        limits:
+          memory: "2048Mi"
+          cpu: "500m"    
       securityContext:
         privileged: true
       volumeMounts:
@@ -51,7 +62,12 @@ spec:
           name: varlibcontainers
         - mountPath: /gen-source
           name: gen-source
-      workingDir: $(workspaces.source.path)/$(params.PATH_CONTEXT)
+      workingDir: $(workspaces.source.path)/$(params.PATH_CONTEXT)       
+      script: |
+        #!/bin/sh
+        set -xe
+        buildah bud --tls-verify=false --layers --build-arg PROJECT="$(params.PROJECT)" \
+         -f Dockerfile -t $(resources.outputs.image.url) 
     - command:
         - buildah
         - push
@@ -60,7 +76,7 @@ spec:
         - 'docker://$(resources.outputs.image.url)'
       image: registry.redhat.io/rhel8/buildah
       name: push
-      resources: {}
+
       securityContext:
         privileged: true
       volumeMounts:

@@ -13,6 +13,10 @@ spec:
     type: string
     description: The location of the path to run build from.   
     default: classifier    
+  - name: PROJECT
+    type: string
+    description: The namespace of the opensift.   
+    default: odh-dev        
   resources:
   - name: app-image
     type: image
@@ -30,6 +34,8 @@ spec:
     - name: deleteExisting
       value: "true"
   - name: generate-image-push
+    runAfter: 
+      - fetch-repo  
     resources:
       outputs:
       - name: image
@@ -39,8 +45,8 @@ spec:
     params: 
     - name: PATH_CONTEXT
       value: $(params.sp-path-context) 
-    runAfter:
-      - package
+    - name: PROJECT
+      value: $(params.PROJECT) 
     workspaces:
       - name: source
         workspace: shared-ws      
