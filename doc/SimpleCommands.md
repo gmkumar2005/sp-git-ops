@@ -92,3 +92,25 @@ echo "s3_secret_key : " && echo -n 'b3BlbmRhdGFodWI=' | base64
 echo "s3_bucket : " &&  echo -n 'frauddetection' | base64
 
 ```
+
+### Run sp-classifier-pipeline
+```
+cd sp-classifier
+oc delete PipelineRun sp-classifier-pipeline-run-1  -n odh-dev && oc apply -f pipelinerun.yaml -n odh-dev  &&tkn pipelinerun logs sp-classifier-pipeline-run-1 -f -n odh-dev
+
+```
+
+### Execute rf image
+```
+oc run sp-rf-classifier-image -ti --image=image-registry.openshift-image-registry.svc:5000/odh-dev/sp-rf-classifier-image:latest --rm=true --restart=Never -- bash
+
+python /microservice/pipeline_step.py --s3_endpoint_url="http://13.67.138.157:8000" --s3_access_key="opendatahub"  --s3_secret_key="b3BlbmRhdGFodWI=" --s3_bucket="frauddetection" --max_keys="45"
+
+```
+
+### execute experiment pipeline
+```
+
+oc delete PipelineRun sp-experiment-1  -n odh-dev && oc apply -f pipelinerun.yaml -n odh-dev  &&tkn pipelinerun logs sp-experiment-1 -f -n odh-dev
+
+```

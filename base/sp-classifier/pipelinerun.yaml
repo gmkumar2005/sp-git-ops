@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: sp-classifier-pipeline-run-
+  name: sp-classifier-pipeline-run-1
+spec:
+  pipelineRef:
+    name: sp-classifier-pipeline
+  resources:
+    - name: lr-app-image
+      resourceRef:
+        name: sp-lr-classifier-image
+    - name: rf-app-image
+      resourceRef:
+        name: sp-rf-classifier-image
+    - name: gb-app-image
+      resourceRef:
+        name: sp-gb-classifier-image
+    - name: gmm-app-image
+      resourceRef:
+        name: sp-gmm-classifier-image
+    - name: dt-app-image
+      resourceRef:
+        name: sp-dt-classifier-image
+  workspaces:
+    - name: shared-ws
+      persistentVolumeClaim:
+        claimName: lr-source

@@ -1,2 +1,4 @@
 resources:
 - bud-push-task.yaml
+- imagestream.yaml
+- secrets.yaml

@@ -1,0 +1,3 @@
+resources:
+- sp-exp-task.yaml
+- pipeline.yaml

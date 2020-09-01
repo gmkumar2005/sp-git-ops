@@ -1,0 +1,4 @@
+resources:
+- pipeline.yaml
+- persistentvolumeclaim.yaml
+- pipelineresource.yaml

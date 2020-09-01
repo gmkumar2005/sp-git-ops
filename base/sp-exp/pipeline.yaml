@@ -1,0 +1,98 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: sp-exp-pipeline
+spec:
+  params:
+  - name: lr-classifier-image
+    type: string
+    description: Full path to the image.
+    default: "image-registry.openshift-image-registry.svc:5000/odh-dev/sp-lr-classifier-image:latest"
+  - name: rf-classifier-image
+    type: string
+    description: Full path to the image.
+    default: "image-registry.openshift-image-registry.svc:5000/odh-dev/sp-rf-classifier-image:latest"
+  - name: gb-classifier-image
+    type: string
+    description: Full path to the image.
+    default: "image-registry.openshift-image-registry.svc:5000/odh-dev/sp-gb-classifier-image:latest"
+  - name: gmm-classifier-image
+    type: string
+    description: Full path to the image.
+    default: "image-registry.openshift-image-registry.svc:5000/odh-dev/sp-gmm-classifier-image:latest"
+  - name: dt-classifier-image
+    type: string
+    description: Full path to the image.
+    default: "image-registry.openshift-image-registry.svc:5000/odh-dev/sp-dt-classifier-image:latest"
+  - name: storage_secret
+    type: string
+    description: Name of the secret holding the minio-secret.
+    default: "sp-minio-secret"
+  - name: max_keys
+    type: string
+    description: Maximumnumber of file to be processed.
+    default: "40"    
+  tasks:
+  - name: run-lr-experiment
+    taskRef:
+      name: sp-classifier
+    params:
+    - name: classifier-image
+      value: $(params.lr-classifier-image)       
+    - name: storage_secret
+      value: $(params.storage_secret)       
+    - name: max_keys
+      value: $(params.max_keys)
+    - name: estimator
+      value: "lr"
+  - name: run-rf-experiment
+    taskRef:
+      name: sp-classifier
+    params:
+    - name: classifier-image
+      value: $(params.rf-classifier-image)       
+    - name: storage_secret
+      value: $(params.storage_secret)       
+    - name: max_keys
+      value: $(params.max_keys)
+    - name: estimator
+      value: "rf"      
+  - name: run-gb-experiment
+    taskRef:
+      name: sp-classifier
+    params:
+    - name: classifier-image
+      value: $(params.gb-classifier-image)       
+    - name: storage_secret
+      value: $(params.storage_secret)       
+    - name: max_keys
+      value: $(params.max_keys)
+    - name: estimator
+      value: "gb"          
+  - name: run-gmm-experiment
+    taskRef:
+      name: sp-classifier
+    params:
+    - name: classifier-image
+      value: $(params.gmm-classifier-image)       
+    - name: storage_secret
+      value: $(params.storage_secret)       
+    - name: max_keys
+      value: $(params.max_keys)
+    - name: estimator
+      value: "gmm"         
+  - name: run-dt-experiment
+    taskRef:
+      name: sp-classifier
+    params:
+    - name: classifier-image
+      value: $(params.dt-classifier-image)       
+    - name: storage_secret
+      value: $(params.storage_secret)       
+    - name: max_keys
+      value: $(params.max_keys)
+    - name: estimator
+      value: "dt"           
+
+  
+

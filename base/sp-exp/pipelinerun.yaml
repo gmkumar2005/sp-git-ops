@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: sp-experiment-run-
+  name: sp-experiment-1
+spec:
+  pipelineRef:
+    name: sp-exp-pipeline

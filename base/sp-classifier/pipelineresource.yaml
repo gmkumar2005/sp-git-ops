@@ -1,0 +1,67 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-lr-classifier-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-lr-classifier-image:latest'
+  type: image
+
+--- 
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-rf-classifier-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-rf-classifier-image:latest'
+  type: image
+
+--- 
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-dt-classifier-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-dt-classifier-image:latest'
+  type: image
+
+--- 
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-gb-classifier-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-gb-classifier-image:latest'
+  type: image
+
+---
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-gmm-classifier-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-gmm-classifier-image:latest'
+  type: image
+
+---
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-mlp-classifier-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-mlp-classifier-image:latest'
+  type: image

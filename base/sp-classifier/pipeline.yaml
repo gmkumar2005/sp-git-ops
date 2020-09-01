@@ -1,0 +1,201 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: sp-classifier-pipeline
+spec:
+  workspaces:
+      - name: shared-ws
+  params:
+  - name: sp-lr-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: 'https://github.com/parkarteam/sp-lr-classifier.git'  
+  - name: sp-path-context
+    type: string
+    description: The location of the path to run build from.   
+    default: classifier    
+  - name: PROJECT
+    type: string
+    description: The namespace of the opensift.   
+    default: odh-dev        
+  - name: sp-rf-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: 'https://github.com/parkarteam/sp-rf-classifier.git'                   
+  - name: sp-gb-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: 'https://github.com/parkarteam/sp-gb-classifier.git'                             
+  - name: sp-gmm-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: 'https://github.com/parkarteam/sp-gmm-classifier.git'                   
+  - name: sp-dt-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: 'https://github.com/parkarteam/sp-dt-classifier.git'                   
+  resources:
+  - name: lr-app-image
+    type: image
+  - name: rf-app-image
+    type: image
+  - name: gb-app-image
+    type: image
+  - name: gmm-app-image
+    type: image
+  - name: dt-app-image
+    type: image
+  tasks:
+  - name: fetch-lr-repo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-ws
+    params:
+    - name: url
+      value: $(params.sp-lr-repo-url)
+    - name: deleteExisting
+      value: "true"
+  - name: generate-lr-image-push
+    runAfter: 
+      - fetch-lr-repo 
+    resources:
+      outputs:
+      - name: image
+        resource:  lr-app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.sp-path-context) 
+    - name: PROJECT
+      value: $(params.PROJECT) 
+    workspaces:
+      - name: source
+        workspace: shared-ws      
+  - name: fetch-rf-repo
+    runAfter: 
+      - generate-lr-image-push  
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-ws
+    params:
+    - name: url
+      value: $(params.sp-rf-repo-url)
+    - name: deleteExisting
+      value: "true" 
+  - name: generate-rf-image-push
+    runAfter: 
+      - fetch-rf-repo 
+    resources:
+      outputs:
+      - name: image
+        resource:  rf-app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.sp-path-context) 
+    - name: PROJECT
+      value: $(params.PROJECT) 
+    workspaces:
+      - name: source
+        workspace: shared-ws      
+  - name: fetch-gb-repo
+    runAfter: 
+      - generate-rf-image-push  
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-ws
+    params:
+    - name: url
+      value: $(params.sp-gb-repo-url)
+    - name: deleteExisting
+      value: "true" 
+  - name: generate-gb-image-push
+    runAfter: 
+      - fetch-gb-repo 
+    resources:
+      outputs:
+      - name: image
+        resource:  gb-app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.sp-path-context) 
+    - name: PROJECT
+      value: $(params.PROJECT) 
+    workspaces:
+      - name: source
+        workspace: shared-ws      
+  - name: fetch-gmm-repo
+    runAfter: 
+      - generate-gb-image-push  
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-ws
+    params:
+    - name: url
+      value: $(params.sp-gmm-repo-url)
+    - name: deleteExisting
+      value: "true" 
+  - name: generate-gmm-image-push
+    runAfter: 
+      - fetch-gmm-repo 
+    resources:
+      outputs:
+      - name: image
+        resource:  gmm-app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.sp-path-context) 
+    - name: PROJECT
+      value: $(params.PROJECT) 
+    workspaces:
+      - name: source
+        workspace: shared-ws      
+  - name: fetch-dt-repo
+    runAfter: 
+      - generate-gmm-image-push  
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-ws
+    params:
+    - name: url
+      value: $(params.sp-dt-repo-url)
+    - name: deleteExisting
+      value: "true" 
+  - name: generate-dt-image-push
+    runAfter: 
+      - fetch-dt-repo 
+    resources:
+      outputs:
+      - name: image
+        resource:  dt-app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.sp-path-context) 
+    - name: PROJECT
+      value: $(params.PROJECT) 
+    workspaces:
+      - name: source
+        workspace: shared-ws      

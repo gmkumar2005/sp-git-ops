@@ -2,4 +2,5 @@ commonLabels:
   app: sp-ml-ops
 bases:
 - ./common-tasks
-- ./sp-lr-classifier
+- ./sp-classifier
+- ./sp-exp
