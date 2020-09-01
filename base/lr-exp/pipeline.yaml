@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: lr-exp-pipeline
+spec:
+  params:
+  - name: lr-classifier-image
+    type: string
+    description: Full path to the image.
+    default: "image-registry.openshift-image-registry.svc:5000/odh-dev/sp-lr-classifier-image:latest"
+  - name: storage_secret
+    type: string
+    description: Name of the secret holding the minio-secret.
+    default: "sp-minio-secret"
+  - name: max_keys
+    type: string
+    description: Maximumnumber of file to be processed.
+    default: "40"    
+  tasks:
+  - name: run-lr-experiment
+    taskRef:
+      name: lr-classifier
+    params:
+    - name: lr-classifier-image
+      value: $(params.lr-classifier-image)       
+    - name: storage_secret
+      value: $(params.storage_secret)       
+    - name: max_keys
+      value: $(params.max_keys)
+
+  
+

@@ -1,0 +1,84 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: lr-classifier
+spec:
+  params:
+  - name: lr-classifier-image
+    type: string
+    description: Full path to the image.
+  - name: storage_secret
+    type: string
+    description: Name of the secret holding the minio-secret.
+  - name: max_keys
+    type: string
+    description: Maximumnumber of file to be processed.
+    default: "40"
+  steps:
+    - name: echo
+      image: $(params.lr-classifier-image)
+      script: |
+        #!/bin/sh
+        # set -xe
+        echo pwd:  $(pwd)
+        ls -lah    
+        echo S3_ENDPOINT_URL    : $S3_ENDPOINT_URL  
+        echo S3_ACCESS_KEY      : $S3_ACCESS_KEY
+        echo S3_SECRET_KEY      : masked
+        echo S3_BUCKET          : $S3_BUCKET
+        echo MAX_KEYS           : $(params.max_keys)
+      env:
+      - name: S3_ENDPOINT_URL
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_endpoint_url       
+      - name: S3_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_access_key       
+      - name: S3_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_secret_key       
+      - name: S3_BUCKET
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_bucket           
+    - name: lr-experiment
+      image: $(params.lr-classifier-image)
+      script: |
+        #!/bin/sh
+        # set -xe
+        python /microservice/pipeline_step.py \
+        --s3_endpoint_url="$S3_ENDPOINT_URL" \
+        --s3_secret_key="$S3_SECRET_KEY" \
+        --max_keys="$(params.max_keys)" \
+        --s3_bucket="$S3_BUCKET" \
+        --s3_access_key="$S3_ACCESS_KEY" 
+        
+      env:
+      - name: S3_ENDPOINT_URL
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_endpoint_url       
+      - name: S3_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_access_key       
+      - name: S3_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_secret_key       
+      - name: S3_BUCKET
+        valueFrom:
+          secretKeyRef:
+            name: $(params.storage_secret)
+            key: s3_bucket           
+      

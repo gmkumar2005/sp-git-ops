@@ -1,0 +1,4 @@
+resources:
+- lr-exp-task.yaml
+- pipeline.yaml
+- secrets.yaml

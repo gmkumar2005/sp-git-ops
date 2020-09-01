@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: lr-experiment-run-
+  name: lr-experiment-1
+spec:
+  pipelineRef:
+    name: lr-exp-pipeline
