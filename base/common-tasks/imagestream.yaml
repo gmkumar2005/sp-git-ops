@@ -1,13 +1,14 @@
+--- 
 kind: ImageStream
 apiVersion: image.openshift.io/v1
 metadata:
-  name: seldon-core-s2i-python37-ubi8
+  name: sklearnserver-rest
 spec:
   lookupPolicy:
     local: false
   tags:
-    - name: 1.2.2
+    - name: 1.2.3
       from:
         kind: DockerImage
-        name: 'docker.io/seldonio/seldon-core-s2i-python37-ubi8:1.2.2'
-        
+        name: 'seldonio/sklearnserver_rest:1.2.3'
+                  

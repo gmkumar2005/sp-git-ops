@@ -4,3 +4,4 @@ bases:
 - ./common-tasks
 - ./sp-classifier
 - ./sp-exp
+- ./seldon

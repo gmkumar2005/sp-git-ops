@@ -28,6 +28,9 @@ oc delete PipelineRun sp-lr-pipeline-run-1  -n odh-dev && oc apply -f pipelineru
 ```
 
 oc run sp-lr-classifier-image -ti --image=image-registry.openshift-image-registry.svc:5000/odh-dev/sp-lr-classifier-image:latest --rm=true --restart=Never -- bash
+oc run sklearnserver -ti --image=registry.connect.redhat.com/seldonio/sklearnserver-rest:1.2.1 --rm=true --restart=Never -- bash
+
+
 
 ```
 
@@ -90,6 +93,7 @@ echo "s3_endpoint_url : " && echo -n 'http://13.67.138.157:8000' | base64
 echo "s3_access_key : " && echo -n 'opendatahub' | base64
 echo "s3_secret_key : " && echo -n 'b3BlbmRhdGFodWI=' | base64
 echo "s3_bucket : " &&  echo -n 'frauddetection' | base64
+echo "USE_SSL : " &&  echo -n 'false' | base64
 
 ```
 
@@ -106,6 +110,8 @@ oc run sp-rf-classifier-image -ti --image=image-registry.openshift-image-registr
 
 python /microservice/pipeline_step.py --s3_endpoint_url="http://13.67.138.157:8000" --s3_access_key="opendatahub"  --s3_secret_key="b3BlbmRhdGFodWI=" --s3_bucket="frauddetection" --max_keys="45"
 
+python /microservice/test.py --s3_endpoint_url="http://13.67.138.157:8000" --s3_access_key="opendatahub"  --s3_secret_key="b3BlbmRhdGFodWI=" --s3_bucket="frauddetection" --max_keys="45"
+
 ```
 
 ### execute experiment pipeline
@@ -113,4 +119,28 @@ python /microservice/pipeline_step.py --s3_endpoint_url="http://13.67.138.157:80
 
 oc delete PipelineRun sp-experiment-1  -n odh-dev && oc apply -f pipelinerun.yaml -n odh-dev  &&tkn pipelinerun logs sp-experiment-1 -f -n odh-dev
 
+oc delete PipelineRun sp-experiment-1  -n odh-dev && oc apply -f sp-exp/pipelinerun.yaml -n odh-dev  &&tkn pipelinerun logs sp-experiment-1 -f -n odh-dev
+
+oc delete PipelineRun sp-experiment-5001  -n odh-dev && oc apply -f sp-exp/pipelinerun.yaml -n odh-dev  &&tkn pipelinerun logs sp-experiment-5001 -f -n odh-dev
+
+
+
+```
+## run classifer pipeline
+```
+oc delete PipelineRun sp-classifier-pipeline-run-1  -n odh-dev && oc apply -f sp-classifier/pipelinerun.yaml -n odh-dev  &&tkn pipelinerun logs sp-classifier-pipeline-run-1 -f -n odh-dev
+```
+
+## Debug container startup
+```
+oc debug lr-sklearn-default-0-classifier
+oc debug lr-sklearn-default-0-classifier-7bfc6fd5c5-4bvxq
+
+```
+### Test seldon deployment
+```
+!curl -X POST -H 'Content-Type: application/json' \
+    -d '{"data": {"names": [], "ndarray": [[109.0, 91.0, 36.56, 132.0, 96.67, null, 24.0, null, null, null, null, null, null,83.14, 0.03, 16.0,12,3,3]]}}' \
+	lr-sklearn-default-classifier:9000/api/v0.1/predictions
+  
 ```

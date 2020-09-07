@@ -2,7 +2,11 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   generateName: sp-experiment-run-
-  name: sp-experiment-1
+  name: sp-experiment-5005
 spec:
+  timeout: 2h30m
   pipelineRef:
     name: sp-exp-pipeline
+  params:
+    - name: max_keys
+      value: "5005"
