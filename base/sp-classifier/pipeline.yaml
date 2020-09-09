@@ -71,8 +71,8 @@ spec:
     # Main start
 
   - name: fetch-lr-repo
-    runAfter:
-      - generate-transformer-image-push
+    # runAfter:
+    #   - generate-transformer-image-push
     taskRef:
       name: git-clone
       kind: ClusterTask
