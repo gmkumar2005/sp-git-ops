@@ -65,3 +65,31 @@ spec:
     - name: url
       value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-mlp-classifier-image:latest'
   type: image
+
+
+---
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-combiner-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-combiner-image:latest'
+  type: image
+
+
+---
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: sp-transformer-image
+spec:
+  params:
+    - name: url
+      value: 'image-registry.openshift-image-registry.svc:5000/odh-dev/sp-transformer-image:latest'
+  type: image
+
+

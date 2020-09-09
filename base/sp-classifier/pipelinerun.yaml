@@ -22,7 +22,16 @@ spec:
     - name: dt-app-image
       resourceRef:
         name: sp-dt-classifier-image
+    - name: combiner-app-image
+      resourceRef:
+        name: sp-combiner-image
+    - name: transformer-app-image
+      resourceRef:
+        name: sp-transformer-image
   workspaces:
     - name: shared-ws
       persistentVolumeClaim:
         claimName: lr-source
+    - name: combiner-ws
+      persistentVolumeClaim:
+        claimName: combiner-source

@@ -5,6 +5,7 @@ metadata:
 spec:
   workspaces:
       - name: shared-ws
+      - name: combiner-ws
   params:
   - name: sp-lr-repo-url
     type: string
@@ -14,6 +15,14 @@ spec:
     type: string
     description: The location of the path to run build from.   
     default: classifier    
+  - name: combiner-path-context
+    type: string
+    description: The location of the path to run build from.   
+    default: combiner    
+  - name: transformer-path-context
+    type: string
+    description: The location of the path to run build from.   
+    default: transformer  
   - name: PROJECT
     type: string
     description: The namespace of the opensift.   
@@ -34,6 +43,14 @@ spec:
     type: string
     description: The git repository URL to clone from.
     default: 'https://github.com/parkarteam/sp-dt-classifier.git'                   
+  - name: sp-combiner-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: 'https://github.com/parkarteam/sp-combiner.git'                   
+  - name: sp-transformer-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: 'https://github.com/parkarteam/sp-transformer.git'                   
   resources:
   - name: lr-app-image
     type: image
@@ -45,8 +62,17 @@ spec:
     type: image
   - name: dt-app-image
     type: image
+  - name: combiner-app-image
+    type: image
+  - name: transformer-app-image
+    type: image
   tasks:
+
+    # Main start
+
   - name: fetch-lr-repo
+    runAfter:
+      - generate-transformer-image-push
     taskRef:
       name: git-clone
       kind: ClusterTask
@@ -75,6 +101,9 @@ spec:
     workspaces:
       - name: source
         workspace: shared-ws      
+    # Main end
+  
+  # Second start
   - name: fetch-rf-repo
     runAfter: 
       - generate-lr-image-push  
@@ -199,3 +228,72 @@ spec:
     workspaces:
       - name: source
         workspace: shared-ws      
+  - name: fetch-combiner-repo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    # runAfter: 
+    #   - generate-lr-image-push      
+    workspaces:
+    - name: output
+      workspace: combiner-ws
+    params:
+    - name: url
+      value: $(params.sp-combiner-repo-url)
+    - name: deleteExisting
+      value: "true"
+  - name: generate-combiner-image-push
+    runAfter: 
+      - fetch-combiner-repo 
+    resources:
+      outputs:
+      - name: image
+        resource:  combiner-app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.combiner-path-context) 
+    - name: PROJECT
+      value: $(params.PROJECT) 
+    workspaces:
+      - name: source
+        workspace: combiner-ws     
+  # Second end
+  
+  # Sedon start
+  - name: fetch-transformer-repo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    runAfter: 
+      - generate-combiner-image-push
+    workspaces:
+    - name: output
+      workspace: combiner-ws
+    params:
+    - name: url
+      value: $(params.sp-transformer-repo-url)
+    - name: deleteExisting
+      value: "true"
+  - name: generate-transformer-image-push
+    runAfter: 
+      - fetch-transformer-repo 
+    resources:
+      outputs:
+      - name: image
+        resource:  transformer-app-image
+    taskRef:
+      name: bud-push
+    params: 
+    - name: PATH_CONTEXT
+      value: $(params.transformer-path-context) 
+    - name: PROJECT
+      value: $(params.PROJECT) 
+    workspaces:
+      - name: source
+        workspace: combiner-ws      
+  
+  # Seldon end 
+
+        

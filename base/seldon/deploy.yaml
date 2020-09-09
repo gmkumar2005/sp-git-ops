@@ -1,26 +1,90 @@
 apiVersion: machinelearning.seldon.io/v1
 kind: SeldonDeployment
 metadata:
-  name: lr-sklearn
+  name: sledon-sp-classifier
 spec:
   annotations:
     seldon.io/executor: "true"
-  name: lr-sp
+  name: sp-classifier
   predictors:
   - componentSpecs:
     - spec:
        containers:
-       - name: classifier
+       - name: lr-classifier
          image: image-registry.openshift-image-registry.svc:5000/odh-dev/sp-lr-classifier-image:latest
+       - name: rf-classifier
+         image: image-registry.openshift-image-registry.svc:5000/odh-dev/sp-rf-classifier-image:latest
+       - name: sp-combiner
+         image: image-registry.openshift-image-registry.svc:5000/odh-dev/sp-combiner-image:latest
+       - name: sp-transformer
+         image: image-registry.openshift-image-registry.svc:5000/odh-dev/sp-transformer-image:latest
     graph:
-      children: []
-      implementation: SKLEARN_SERVER
-      modelUri: s3://frauddetection/uploaded/lrmodel
-      envSecretRefName: seldon-init-container-secret
-      name: classifier
-      parameters:
-        - name: method
-          type: STRING
-          value: predict_proba
-    name: default
+      children:
+      - name: sp-combiner
+        endpoint:
+          type: REST
+        type: COMBINER
+        env: 
+          - name: "MODEL_NAME"
+            value: "Combiner"   
+          - name: "API_TYPE"
+            value: "REST"   
+          - name: "SERVICE_TYPE"
+            value: "COMBINER"   
+          - name: "PERSISTENCE"
+            value: "0"   
+        children:
+        - name: lr-classifier
+          implementation: SKLEARN_SERVER
+          modelUri: s3://frauddetection/uploaded/lrmodel
+          envSecretRefName: seldon-init-container-secret
+          parameters: 
+            - name: method
+              type: STRING
+              value: predict_proba
+          endpoint:
+            type: REST
+          type: MODEL
+          children: []
+        - name: rf-classifier
+          implementation: SKLEARN_SERVER
+          modelUri: s3://frauddetection/uploaded/rfmodel
+          envSecretRefName: seldon-init-container-secret        
+          parameters: 
+            - name: method
+              type: STRING
+              value: predict_proba        
+          endpoint: 
+            type: REST
+          type: MODEL
+          children: []
+      name: sp-transformer
+      env: 
+        - name: "MODEL_NAME"
+          value: "Transformer"   
+        - name: "API_TYPE"
+          value: "REST"   
+        - name: "SERVICE_TYPE"
+          value: "TRANSFORMER"   
+        - name: "PERSISTENCE"
+          value: "0"   
+      endpoint:
+        type: REST
+      type: TRANSFORMER
+    name: sp-predictor
     replicas: 1
+    annotations:
+      predictor_version: v1
+
+    # graph:
+    #   children: []
+    #   implementation: SKLEARN_SERVER
+    #   modelUri: s3://frauddetection/uploaded/lrmodel
+    #   envSecretRefName: seldon-init-container-secret
+    #   name: classifier
+    #   parameters:
+    #     - name: method
+    #       type: STRING
+    #       value: predict_proba
+    # name: default
+    # replicas: 1

@@ -143,4 +143,31 @@ oc debug lr-sklearn-default-0-classifier-7bfc6fd5c5-4bvxq
     -d '{"data": {"names": [], "ndarray": [[109.0, 91.0, 36.56, 132.0, 96.67, null, 24.0, null, null, null, null, null, null,83.14, 0.03, 16.0,12,3,3]]}}' \
 	lr-sklearn-default-classifier:9000/api/v0.1/predictions
   
+
+```
+
+### Translator compaision
+```
+  '{"data": {"names": ["message"], "ndarray": ["Wie läuft dein Tag"]}}'
+   translated = self.gs.translate(text_msg[0], 'en')
+   np.array([translated])
+  '{"data": {"names": [], "ndarray": [[109.0, 91.0, 36.56, 132.0, 96.67, null, 24.0, null, null, null, null, null, null,83.14, 0.03, 16.0,12,3,3]]}}'
+```
+
+### Test seldon with combiner
+```
+url: http://sledon-sp-classifier-sp-predictor.odh-dev.svc.cluster.local:8000/api/v1.0/predictions
+
+!curl -X POST -H 'Content-Type: application/json' \
+    -d '{"data": {"names": [], "ndarray": [[109.0, 91.0, 36.56, 132.0, 96.67, null, 24.0, null, null, null, null, null, null,83.14, 0.03, 16.0,12,3,3]]}}' \
+	sledon-sp-classifier-sp-predictor.odh-dev.svc.cluster.local:8000/api/v1.0/predictions
+
+!curl -X POST -H 'Content-Type: application/json' \
+    -d '{"data": {"names": [], "ndarray": [[109.0, 91.0, 36.56, 132.0, 96.67, null, 24.0, null, null, null, null, null, null,83.14, 0.03, 16.0,12,3,3]]}}' \
+	sledon-sp-classifier-sp-predictor-lr-classifier.odh-dev.svc.cluster.local:8001/api/v1.0/predictions
+
+
+!curl -X POST -H 'Content-Type: application/json' \
+    -d '{"data": {"names": [], "ndarray": [[109.0, 91.0, 36.56, 132.0, 96.67, null, 24.0, null, null, null, null, null, null,83.14, 0.03, 16.0,12,3,3]]}}' \
+	localhost:9003/api/v1.0/predictions
 ```
