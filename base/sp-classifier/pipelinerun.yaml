@@ -31,7 +31,7 @@ spec:
   workspaces:
     - name: shared-ws
       persistentVolumeClaim:
-        claimName: lr-source
+        claimName: classifier-source
     - name: combiner-ws
       persistentVolumeClaim:
         claimName: combiner-source

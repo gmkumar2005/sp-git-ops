@@ -1,0 +1,27 @@
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: demo-classifier
+spec:
+  name: lr-classifier
+  predictors:
+    - componentSpecs:
+        - spec:
+            containers:
+              - image: image-registry.openshift-image-registry.svc:5000/odh-dev/sp-lr-classifier-image:latest
+                name: classifier
+      graph:
+        name: classifier
+        implementation: SKLEARN_SERVER
+        modelUri: s3://frauddetection/uploaded/lrmodel
+        envSecretRefName: seldon-init-container-secret
+        parameters: 
+          - name: method
+            type: STRING
+            value: predict
+        endpoint:
+            type: REST
+        type: MODEL
+        children: []
+      name: lr-predictor
+      replicas: 1
